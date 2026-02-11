@@ -1,0 +1,104 @@
+/* Amazon AI Scraper - Styles minimalistes */
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  background: #f4f4f5;
+  color: #18181b;
+  width: 400px;
+  min-height: 200px;
+}
+
+.container {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.title {
+  margin: 0 0 4px 0;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #18181b;
+}
+
+/* Boutons */
+.btn {
+  border: none;
+  border-radius: 6px;
+  padding: 12px 16px;
+  font-size: 0.9375rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.15s ease, opacity 0.15s ease;
+}
+
+.btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.btn-primary {
+  background: #2563eb;
+  color: #fff;
+}
+
+.btn-primary:hover:not(:disabled) {
+  background: #1d4ed8;
+}
+
+.btn-secondary {
+  background: #e4e4e7;
+  color: #3f3f46;
+}
+
+.btn-secondary:hover:not(:disabled) {
+  background: #d4d4d8;
+}
+
+/* Zone preview Markdown */
+.preview {
+  display: none;
+  margin: 0;
+  padding: 12px;
+  background: #e4e4e7;
+  border-radius: 6px;
+  font-family: ui-monospace, "Cascadia Code", "Source Code Pro", Menlo, monospace;
+  font-size: 0.8125rem;
+  line-height: 1.45;
+  color: #27272a;
+  max-height: 280px;
+  overflow: auto;
+  white-space: pre-wrap;
+  word-break: break-word;
+  border: 1px solid #d4d4d8;
+}
+
+.preview.visible {
+  display: block;
+}
+
+/* Messages (succès / erreur) */
+.message {
+  min-height: 20px;
+  font-size: 0.875rem;
+  line-height: 1.4;
+}
+
+.message.error {
+  color: #dc2626;
+}
+
+.message.success {
+  color: #16a34a;
+}
+
+.message.info {
+  color: #2563eb;
+}

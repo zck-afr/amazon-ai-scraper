@@ -1,0 +1,25 @@
+{
+  "manifest_version": 3,
+  "name": "Amazon AI Scraper",
+  "description": "Extract Amazon products for AI analysis in 1 click",
+  "version": "1.0.0",
+  "permissions": [
+    "activeTab",
+    "scripting",
+    "clipboardWrite"
+  ],
+  "host_permissions": [
+    "*://*.amazon.fr/*"
+  ],
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "Amazon AI Scraper"
+  },
+  "content_scripts": [
+    {
+      "matches": ["*://*.amazon.fr/*/dp/*"],
+      "js": ["content.js"],
+      "run_at": "document_idle"
+    }
+  ]
+}

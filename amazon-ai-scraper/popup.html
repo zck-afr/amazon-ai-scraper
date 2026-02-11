@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Amazon AI Scraper</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <div class="container">
+    <h1 class="title">Amazon AI Scraper</h1>
+
+    <button type="button" id="extractBtn" class="btn btn-primary">Extract Product Data</button>
+
+    <pre id="preview" class="preview" aria-label="Markdown preview"></pre>
+
+    <button type="button" id="copyBtn" class="btn btn-secondary" hidden>📋 Copy to Clipboard</button>
+
+    <div id="message" class="message" aria-live="polite"></div>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>
