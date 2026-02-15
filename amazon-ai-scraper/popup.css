@@ -1,4 +1,7 @@
-/* Amazon AI Scraper - Styles minimalistes */
+/* ============================================
+   Amazon AI Scraper - Popup UI
+   Design system : couleurs, typo, composants
+   ============================================ */
 
 * {
   box-sizing: border-box;
@@ -8,97 +11,242 @@ body {
   margin: 0;
   padding: 0;
   font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  background: #f4f4f5;
-  color: #18181b;
-  width: 400px;
+  font-size: 14px;
+  color: #1E293B;
+  background: #F8FAFC;
+  width: 420px;
   min-height: 200px;
 }
 
-.container {
-  padding: 20px;
+/* ---- Conteneur principal ---- */
+.popup {
+  background: #FFFFFF;
+  min-height: 200px;
   display: flex;
   flex-direction: column;
-  gap: 14px;
 }
 
-.title {
-  margin: 0 0 4px 0;
-  font-size: 1.25rem;
-  font-weight: 600;
-  color: #18181b;
+/* ---- Header ---- */
+.popup-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 16px;
+  background: #FFFFFF;
+  border-bottom: 1px solid #E2E8F0;
+  flex-shrink: 0;
 }
 
-/* Boutons */
+.logo {
+  font-size: 20px;
+  line-height: 1;
+}
+
+.header-title {
+  margin: 0;
+  font-size: 16px;
+  font-weight: bold;
+  color: #1E293B;
+  flex: 1;
+}
+
+.version {
+  font-size: 11px;
+  color: #64748B;
+}
+
+/* Indicateur d'état (success = ✅, error = ❌, loading = spinner, idle = vide) */
+.status-indicator {
+  font-size: 14px;
+  line-height: 1;
+  min-width: 20px;
+  text-align: right;
+}
+
+/* Spinner dans le header (état loading) */
+.status-indicator.status-loading::before {
+  content: "";
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  border: 2px solid #E2E8F0;
+  border-top-color: #2563EB;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ---- Main : blocs d'état ---- */
+.popup-main {
+  padding: 16px;
+  flex: 1;
+}
+
+.state-block {
+  opacity: 1;
+  transition: opacity 0.2s ease;
+}
+
+.state-block.hidden {
+  display: none !important;
+}
+
+/* Texte état idle */
+.idle-text {
+  margin: 0 0 16px 0;
+  font-size: 14px;
+  color: #64748B;
+  text-align: center;
+  line-height: 1.5;
+}
+
+/* ---- Bouton principal ---- */
 .btn {
   border: none;
-  border-radius: 6px;
-  padding: 12px 16px;
-  font-size: 0.9375rem;
+  border-radius: 8px;
+  padding: 12px 20px;
+  font-size: 14px;
   font-weight: 500;
   cursor: pointer;
-  transition: background-color 0.15s ease, opacity 0.15s ease;
+  transition: all 0.2s ease;
+  font-family: inherit;
 }
 
-.btn:disabled {
+.btn-primary {
+  background: #2563EB;
+  color: #FFFFFF;
+  width: 100%;
+}
+
+.btn-primary:hover:not(:disabled) {
+  background: #1D4ED8;
+  transform: translateY(-1px);
+}
+
+.btn-primary:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.btn:disabled,
+.btn.btn-disabled {
   opacity: 0.6;
   cursor: not-allowed;
 }
 
-.btn-primary {
-  background: #2563eb;
-  color: #fff;
+/* Bouton outline (Re-extract) */
+.btn-outline {
+  background: transparent;
+  color: #2563EB;
+  border: 1px solid #2563EB;
+  width: auto;
+  min-width: 44px;
+  flex-shrink: 0;
 }
 
-.btn-primary:hover:not(:disabled) {
-  background: #1d4ed8;
+.btn-outline:hover {
+  background: #EFF6FF;
 }
 
-.btn-secondary {
-  background: #e4e4e7;
-  color: #3f3f46;
+/* Ligne Copy + Re-extract */
+.btn-row {
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
 }
 
-.btn-secondary:hover:not(:disabled) {
-  background: #d4d4d8;
+.btn-row .btn-primary {
+  flex: 1;
 }
 
-/* Zone preview Markdown */
-.preview {
-  display: none;
-  margin: 0;
+/* ---- Zone preview Markdown ---- */
+.preview-wrapper {
+  max-height: 250px;
+  overflow-y: auto;
+  background: #F8FAFC;
+  border: 1px solid #E2E8F0;
+  border-radius: 8px;
   padding: 12px;
-  background: #e4e4e7;
-  border-radius: 6px;
-  font-family: ui-monospace, "Cascadia Code", "Source Code Pro", Menlo, monospace;
-  font-size: 0.8125rem;
+  margin-bottom: 12px;
+}
+
+/* Scrollbar stylée (webkit) */
+.preview-wrapper::-webkit-scrollbar {
+  width: 6px;
+}
+
+.preview-wrapper::-webkit-scrollbar-track {
+  background: #E2E8F0;
+  border-radius: 3px;
+}
+
+.preview-wrapper::-webkit-scrollbar-thumb {
+  background: #94A3B8;
+  border-radius: 3px;
+}
+
+.preview-wrapper::-webkit-scrollbar-thumb:hover {
+  background: #64748B;
+}
+
+.preview {
+  margin: 0;
+  font-family: monospace;
+  font-size: 12px;
   line-height: 1.45;
-  color: #27272a;
-  max-height: 280px;
-  overflow: auto;
+  color: #1E293B;
   white-space: pre-wrap;
   word-break: break-word;
-  border: 1px solid #d4d4d8;
 }
 
-.preview.visible {
-  display: block;
+/* ---- Boîte erreur ---- */
+.error-box {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  background: #FEF2F2;
+  border: 1px solid #FECACA;
+  border-radius: 8px;
+  padding: 12px;
+  margin-bottom: 16px;
 }
 
-/* Messages (succès / erreur) */
-.message {
-  min-height: 20px;
-  font-size: 0.875rem;
+.error-icon {
+  font-size: 16px;
+  line-height: 1.4;
+  flex-shrink: 0;
+}
+
+.error-text {
+  margin: 0;
+  font-size: 14px;
+  color: #DC2626;
   line-height: 1.4;
 }
 
-.message.error {
-  color: #dc2626;
+/* ---- Spinner (état loading) ---- */
+.spinner-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
 }
 
-.message.success {
-  color: #16a34a;
+.spinner {
+  width: 24px;
+  height: 24px;
+  border: 2px solid #E2E8F0;
+  border-top-color: #2563EB;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
 }
 
-.message.info {
-  color: #2563eb;
+.spinner-text {
+  font-size: 14px;
+  color: #64748B;
 }

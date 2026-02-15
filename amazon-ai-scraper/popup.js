@@ -1,38 +1,59 @@
 (function () {
   "use strict";
 
-  const EXTRACT_BTN_ID = "extractBtn";
-  const PREVIEW_ID = "preview";
-  const COPY_BTN_ID = "copyBtn";
-  const MESSAGE_ID = "message";
-  const RESPONSE_TIMEOUT_MS = 5000;
+  /* ----- Constantes ----- */
+  var RESPONSE_TIMEOUT_MS = 5000;
+  var COPY_FEEDBACK_MS = 2000;
 
-  const extractBtn = document.getElementById(EXTRACT_BTN_ID);
-  const preview = document.getElementById(PREVIEW_ID);
-  const copyBtn = document.getElementById(COPY_BTN_ID);
-  const messageEl = document.getElementById(MESSAGE_ID);
+  /* ----- Éléments DOM ----- */
+  var statusIndicator = document.getElementById("statusIndicator");
+  var blockIdle = document.getElementById("block-idle");
+  var blockLoading = document.getElementById("block-loading");
+  var blockSuccess = document.getElementById("block-success");
+  var blockError = document.getElementById("block-error");
+  var extractBtn = document.getElementById("extractBtn");
+  var preview = document.getElementById("preview");
+  var copyBtn = document.getElementById("copyBtn");
+  var reExtractBtn = document.getElementById("reExtractBtn");
+  var errorMessage = document.getElementById("errorMessage");
+  var tryAgainBtn = document.getElementById("tryAgainBtn");
 
   /**
-   * Affiche un message dans la zone message (info, succès ou erreur).
+   * Affiche un état de l'UI (idle | loading | success | error).
+   * Masque tous les blocs puis affiche celui correspondant et met à jour le header.
+   * @param {string} state - 'idle' | 'loading' | 'success' | 'error'
+   * @param {object} options - { errorText: string } pour state === 'error', { markdown: string } pour state === 'success'
    */
-  function showMessage(text, type) {
-    messageEl.textContent = text;
-    messageEl.className = "message " + (type || "info");
+  function showState(state, options) {
+    options = options || {};
+    var blocks = [blockIdle, blockLoading, blockSuccess, blockError];
+    blocks.forEach(function (block) {
+      block.classList.add("hidden");
+    });
+
+    statusIndicator.className = "status-indicator";
+    statusIndicator.textContent = "";
+
+    if (state === "idle") {
+      blockIdle.classList.remove("hidden");
+    } else if (state === "loading") {
+      blockLoading.classList.remove("hidden");
+      statusIndicator.className = "status-indicator status-loading";
+    } else if (state === "success") {
+      blockSuccess.classList.remove("hidden");
+      statusIndicator.textContent = "✅";
+      if (options.markdown != null) {
+        preview.textContent = options.markdown;
+      }
+    } else if (state === "error") {
+      blockError.classList.remove("hidden");
+      statusIndicator.textContent = "❌";
+      errorMessage.textContent = options.errorText || "Une erreur s'est produite.";
+    }
   }
 
   /**
-   * Réinitialise l’UI (message, preview, bouton copy).
-   */
-  function resetUI() {
-    messageEl.textContent = "";
-    messageEl.className = "message";
-    preview.textContent = "";
-    preview.classList.remove("visible");
-    copyBtn.hidden = true;
-  }
-
-  /**
-   * Récupère l’onglet actif et envoie un message au content script.
+   * Récupère l'onglet actif et envoie { action: "extractData" } au content script.
    */
   function getTabAndSendMessage() {
     return new Promise(function (resolve, reject) {
@@ -45,7 +66,7 @@
           reject(new Error("No active tab"));
           return;
         }
-        const tab = tabs[0];
+        var tab = tabs[0];
         chrome.tabs.sendMessage(tab.id, { action: "extractData" }, function (response) {
           if (chrome.runtime.lastError) {
             reject(new Error(chrome.runtime.lastError.message));
@@ -58,12 +79,13 @@
   }
 
   /**
-   * Timeout wrapper pour l’appel au content script.
+   * Appel extraction avec timeout (5 s).
+   * En cas de timeout : reject avec message "Timeout: impossible de contacter la page".
    */
   function extractWithTimeout() {
     return new Promise(function (resolve, reject) {
-      const timer = setTimeout(function () {
-        reject(new Error("No response from page. Open an Amazon product page (URL with /dp/) and try again."));
+      var timer = setTimeout(function () {
+        reject(new Error("Timeout: impossible de contacter la page"));
       }, RESPONSE_TIMEOUT_MS);
 
       getTabAndSendMessage()
@@ -79,56 +101,62 @@
   }
 
   /**
-   * Clic sur "Extract Product Data".
+   * Clic sur "Extract Product Data" : passage en loading puis envoi du message.
    */
   function onExtractClick() {
-    resetUI();
-    extractBtn.disabled = true;
-    showMessage("Extracting...", "info");
-
+    showState("loading");
     extractWithTimeout()
       .then(function (response) {
         if (response && response.success && response.markdown) {
-          preview.textContent = response.markdown;
-          preview.classList.add("visible");
-          copyBtn.hidden = false;
-          showMessage("", "");
+          showState("success", { markdown: response.markdown });
         } else {
-          showMessage(response && response.error ? response.error : "Extraction failed.", "error");
+          showState("error", {
+            errorText: (response && response.error) ? response.error : "Extraction failed."
+          });
         }
       })
       .catch(function (err) {
-        const msg = err && err.message ? err.message : "Failed to extract data.";
-        showMessage(msg, "error");
-      })
-      .finally(function () {
-        extractBtn.disabled = false;
+        var msg = (err && err.message) ? err.message : "Failed to extract data.";
+        showState("error", { errorText: msg });
       });
   }
 
   /**
-   * Clic sur "Copy to Clipboard".
+   * Clic sur "Copy Markdown" : copie du preview dans le presse-papier, feedback 2 s.
    */
   function onCopyClick() {
-    const text = preview.textContent;
+    var text = preview.textContent;
     if (!text) return;
 
     navigator.clipboard
       .writeText(text)
       .then(function () {
-        const originalText = copyBtn.textContent;
-        copyBtn.textContent = "✓ Copied!";
+        var originalLabel = copyBtn.textContent;
+        copyBtn.textContent = "✅ Copied!";
         copyBtn.disabled = true;
         window.setTimeout(function () {
-          copyBtn.textContent = originalText;
+          copyBtn.textContent = originalLabel;
           copyBtn.disabled = false;
-        }, 2000);
+        }, COPY_FEEDBACK_MS);
       })
       .catch(function () {
-        showMessage("Could not copy to clipboard.", "error");
+        showState("error", { errorText: "Could not copy to clipboard." });
       });
   }
 
+  /**
+   * Clic sur "Try Again" ou "🔄" (Re-extract) : retour à l'état idle.
+   */
+  function onResetClick() {
+    showState("idle");
+  }
+
+  /* ----- Init : état idle au chargement ----- */
+  showState("idle");
+
+  /* ----- Event listeners ----- */
   extractBtn.addEventListener("click", onExtractClick);
   copyBtn.addEventListener("click", onCopyClick);
+  reExtractBtn.addEventListener("click", onResetClick);
+  tryAgainBtn.addEventListener("click", onResetClick);
 })();

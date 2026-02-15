@@ -7,16 +7,51 @@
   <link rel="stylesheet" href="popup.css">
 </head>
 <body>
-  <div class="container">
-    <h1 class="title">Amazon AI Scraper</h1>
+  <div class="popup">
+    <!-- Header : logo, titre, version, indicateur d'état -->
+    <header class="popup-header">
+      <span class="logo" aria-hidden="true">🤖</span>
+      <h1 class="header-title">Amazon AI Scraper</h1>
+      <span class="version">v1.0</span>
+      <span class="status-indicator" id="statusIndicator" aria-hidden="true"></span>
+    </header>
 
-    <button type="button" id="extractBtn" class="btn btn-primary">Extract Product Data</button>
+    <main class="popup-main">
+      <!-- État 1 : IDLE -->
+      <section id="block-idle" class="state-block">
+        <p class="idle-text">Ouvrez une page produit Amazon puis cliquez sur Extract</p>
+        <button type="button" id="extractBtn" class="btn btn-primary">🔍 Extract Product Data</button>
+      </section>
 
-    <pre id="preview" class="preview" aria-label="Markdown preview"></pre>
+      <!-- État 2 : LOADING -->
+      <section id="block-loading" class="state-block hidden">
+        <div class="spinner-wrapper">
+          <div class="spinner" aria-hidden="true"></div>
+          <span class="spinner-text">Extracting...</span>
+        </div>
+        <button type="button" class="btn btn-primary btn-disabled" disabled>⏳ Extracting...</button>
+      </section>
 
-    <button type="button" id="copyBtn" class="btn btn-secondary" hidden>📋 Copy to Clipboard</button>
+      <!-- État 3 : SUCCESS -->
+      <section id="block-success" class="state-block hidden">
+        <div class="preview-wrapper">
+          <pre id="preview" class="preview" aria-label="Aperçu Markdown"></pre>
+        </div>
+        <div class="btn-row">
+          <button type="button" id="copyBtn" class="btn btn-primary">📋 Copy Markdown</button>
+          <button type="button" id="reExtractBtn" class="btn btn-outline" title="Ré-extraire">🔄</button>
+        </div>
+      </section>
 
-    <div id="message" class="message" aria-live="polite"></div>
+      <!-- État 4 : ERROR -->
+      <section id="block-error" class="state-block hidden">
+        <div class="error-box">
+          <span class="error-icon" aria-hidden="true">❌</span>
+          <p id="errorMessage" class="error-text"></p>
+        </div>
+        <button type="button" id="tryAgainBtn" class="btn btn-primary">🔍 Try Again</button>
+      </section>
+    </main>
   </div>
 
   <script src="popup.js"></script>
