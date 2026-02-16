@@ -173,51 +173,135 @@
   }
 
   /**
-   * Extraction du prix UNIQUEMENT dans le conteneur produit principal.
-   * 1) Si "Aucune offre" / "non disponible" → pas de prix.
-   * 2) Cherche le prix dans #corePrice_feature_div, puis #apex_desktop_newAccordionRow, puis #price_inside_buybox.
-   * 3) Le prix doit être dans #centerCol ou #ppd, sinon on l'ignore.
+   * Extraction du prix (livres + produits standard).
+   * Priorité 1 : .a-offscreen | 2 : whole+fraction | 3 : fallbacks existants | 4 : disponibilité | 5 : final
    */
   function extractPriceRaw() {
+    var price = "";
+
     try {
-      var availability = getText("#availability span", null) || getText("#availability", null) || "";
-      if (/Aucune offre|non disponible|Currently unavailable/i.test(availability)) {
-        return "";
+      var offscreen = document.querySelector(
+        "#corePrice_feature_div .a-offscreen, " +
+        "#tmmSwatches .a-button-selected .a-offscreen, " +
+        "#mediaTab_content_landing .a-offscreen, " +
+        ".swatchElement.selected .a-offscreen"
+      );
+      if (offscreen) {
+        var ot = (offscreen.textContent || offscreen.innerText || "").trim();
+        if (ot && ot.indexOf("€") !== -1) price = ot;
       }
     } catch (e) {}
 
-    var scopes = ["#corePrice_feature_div", "#apex_desktop_newAccordionRow", "#price_inside_buybox"];
-    for (var s = 0; s < scopes.length; s++) {
+    if (!price) {
       try {
-        var root = document.querySelector(scopes[s]);
-        if (!root) continue;
-
-        var wholeEl = root.querySelector(".a-price-whole");
-        if (wholeEl && isInCenterColOrPpd(wholeEl)) {
-          var whole = (wholeEl.textContent || wholeEl.innerText || "").trim();
-          if (whole) {
-            var fraction = getTextInScope(root, ".a-price-fraction", "");
-            var symbol = getTextInScope(root, ".a-price-symbol", "€");
-            var price = whole + (fraction ? "," + fraction : "") + " " + symbol;
-            return price.replace(/,+/g, ",").replace(/\s+/g, " ").trim();
-          }
-        }
-
-        var priceBlockEl = root.querySelector("#priceblock_ourprice");
-        if (priceBlockEl && isInCenterColOrPpd(priceBlockEl)) {
-          var pb = (priceBlockEl.textContent || priceBlockEl.innerText || "").trim();
-          if (pb) return pb.replace(/,+/g, ",").replace(/\s+/g, " ").trim();
-        }
-
-        var offscreenEl = root.querySelector(".a-price .a-offscreen");
-        if (offscreenEl && isInCenterColOrPpd(offscreenEl)) {
-          var off = (offscreenEl.textContent || offscreenEl.innerText || "").trim();
-          if (off) return off.replace(/,+/g, ",").replace(/\s+/g, " ").trim();
+        var wholeEl = document.querySelector(
+          "#corePrice_feature_div .a-price-whole, " +
+          "#price .a-price-whole"
+        );
+        var fractionEl = document.querySelector(
+          "#corePrice_feature_div .a-price-fraction, " +
+          "#price .a-price-fraction"
+        );
+        var whole = wholeEl ? (wholeEl.textContent || wholeEl.innerText || "").trim().replace(/[.,]/g, "") : "";
+        var fraction = fractionEl ? (fractionEl.textContent || fractionEl.innerText || "").trim() : "";
+        if (whole) {
+          price = whole + "," + (fraction || "00") + " €";
         }
       } catch (e) {}
     }
 
-    return "";
+    if (!price) {
+      try {
+        var slotSpan = document.querySelector(".slot-price span");
+        if (slotSpan && isInCenterColOrPpd(slotSpan)) {
+          price = (slotSpan.textContent || slotSpan.innerText || "").trim();
+        }
+      } catch (e) {}
+    }
+    if (!price) {
+      try {
+        var tmmSlot = document.querySelector("#tmmSwatches .a-button-selected .slot-price");
+        if (tmmSlot && isInCenterColOrPpd(tmmSlot)) {
+          price = (tmmSlot.textContent || tmmSlot.innerText || "").trim();
+        }
+      } catch (e) {}
+    }
+    if (!price) {
+      try {
+        var tmmColor = document.querySelector("#tmmSwatches .a-button-selected span.a-color-base");
+        if (tmmColor && isInCenterColOrPpd(tmmColor)) {
+          var tc = (tmmColor.textContent || tmmColor.innerText || "").trim();
+          if (tc && /\d/.test(tc)) price = tc;
+        }
+      } catch (e) {}
+    }
+    if (!price) {
+      try {
+        var priceEl = document.querySelector("#price");
+        if (priceEl && isInCenterColOrPpd(priceEl)) {
+          var pe = (priceEl.textContent || priceEl.innerText || "").trim();
+          if (pe && /\d/.test(pe)) price = pe;
+        }
+      } catch (e) {}
+    }
+    if (!price) {
+      try {
+        var offerPrice = document.querySelector(".offer-price");
+        if (offerPrice && isInCenterColOrPpd(offerPrice)) {
+          var op = (offerPrice.textContent || offerPrice.innerText || "").trim();
+          if (op && /\d/.test(op)) price = op;
+        }
+      } catch (e) {}
+    }
+    if (!price) {
+      var scopes = ["#corePrice_feature_div", "#apex_desktop_newAccordionRow", "#price_inside_buybox"];
+      for (var s = 0; s < scopes.length; s++) {
+        try {
+          var root = document.querySelector(scopes[s]);
+          if (!root) continue;
+          var wholeInScope = root.querySelector(".a-price-whole");
+          if (wholeInScope && isInCenterColOrPpd(wholeInScope)) {
+            var w = (wholeInScope.textContent || wholeInScope.innerText || "").trim();
+            if (w) {
+              var f = getTextInScope(root, ".a-price-fraction", "");
+              var sym = getTextInScope(root, ".a-price-symbol", "€");
+              price = w + (f ? "," + f : "") + " " + sym;
+              break;
+            }
+          }
+          var priceBlockEl = root.querySelector("#priceblock_ourprice");
+          if (priceBlockEl && isInCenterColOrPpd(priceBlockEl)) {
+            var pb = (priceBlockEl.textContent || priceBlockEl.innerText || "").trim();
+            if (pb) {
+              price = pb;
+              break;
+            }
+          }
+          var offscreenInScope = root.querySelector(".a-price .a-offscreen");
+          if (offscreenInScope && isInCenterColOrPpd(offscreenInScope)) {
+            var off = (offscreenInScope.textContent || offscreenInScope.innerText || "").trim();
+            if (off) {
+              price = off;
+              break;
+            }
+          }
+        } catch (e) {}
+      }
+    }
+
+    if (!price) {
+      try {
+        var availabilityEl = document.querySelector("#availability");
+        var unavailable = availabilityEl ? (availabilityEl.textContent || availabilityEl.innerText || "").toLowerCase() : "";
+        if (unavailable.indexOf("non disponible") !== -1 || unavailable.indexOf("aucune offre") !== -1) {
+          price = "Prix non disponible";
+        }
+      } catch (e) {}
+    }
+
+    if (!price) price = "Prix non disponible";
+
+    return price.replace(/,+/g, ",").replace(/\s+/g, " ").trim();
   }
 
   /**
@@ -343,12 +427,12 @@
   /**
    * Extrait la description technique détaillée (paragraphes).
    * Sélecteurs : #productDescription p, #aplus_feature_div .aplus-v2, #aplus p, #productDescription_feature_div p, .productDescriptionWrapper p
-   * @returns string[] (max 3 paragraphes, 200 chars chacun, texte uniquement)
+   * @returns string[] (max 3 paragraphes, 500 chars chacun, texte uniquement)
    */
   function extractTechnicalDescriptionRaw() {
     var maxParas = 3;
     var minLength = 10;
-    var maxLength = 200;
+    var maxLength = 500;
     var result = [];
 
     function isCssOrJsParagraph(p) {
@@ -367,7 +451,7 @@
         if (text.length < minLength) continue;
         if (isOnlyDigitsOrSymbols(text)) continue;
         if (isCssOrJsParagraph(text)) continue;
-        list.push(text.length > maxLength ? text.slice(0, 197) + "..." : text);
+        list.push(text.length > maxLength ? text.slice(0, 497) + "..." : text);
       }
       return list;
     }
@@ -516,38 +600,146 @@
   }
 
   /**
-   * Extrait les avis (texte brut).
+   * Extrait les avis (sans "Lire la suite").
+   * Cible span:not(.a-expander-prompt), .reviewText, span[class=""] dans chaque [data-hook="review-body"].
    */
   function extractReviewsRaw() {
     var reviews = [];
     var maxReviews = 3;
-    var maxChars = 120;
+    var maxChars = 150;
+    var minChars = 15;
+    var lireSuiteRegex = /\s*(Lire la suite|Read more|Voir plus)\s*$/gi;
 
-    function collectFromSelector(selector) {
+    function getTextFromReviewBody(body) {
       try {
-        var nodes = document.querySelectorAll(selector);
-        for (var i = 0; i < nodes.length && reviews.length < maxReviews; i++) {
-          var text = (nodes[i].textContent || nodes[i].innerText || "").trim();
-          if (text.length > 0) {
-            var excerpt = text.length <= maxChars ? text : text.slice(0, maxChars) + "...";
-            reviews.push(excerpt);
+        var spans = body.querySelectorAll("span:not(.a-expander-prompt)");
+        if (spans && spans.length > 0) {
+          var parts = [];
+          for (var j = 0; j < spans.length; j++) {
+            var t = (spans[j].textContent || spans[j].innerText || "").trim();
+            if (t) parts.push(t);
           }
+          if (parts.length > 0) return parts.join(" ");
         }
+        var reviewText = body.querySelector(".reviewText");
+        if (reviewText) {
+          var rt = (reviewText.textContent || reviewText.innerText || "").trim();
+          if (rt) return rt;
+        }
+        var emptySpans = body.querySelectorAll('span[class=""]');
+        if (emptySpans && emptySpans.length > 0) {
+          var parts2 = [];
+          for (var k = 0; k < emptySpans.length; k++) {
+            var t2 = (emptySpans[k].textContent || emptySpans[k].innerText || "").trim();
+            if (t2) parts2.push(t2);
+          }
+          if (parts2.length > 0) return parts2.join(" ");
+        }
+        return (body.textContent || body.innerText || "").trim();
       } catch (e) {}
+      return "";
     }
 
     try {
-      collectFromSelector('[data-hook="review-body"]');
-      if (reviews.length >= maxReviews) return reviews.slice(0, maxReviews);
+      var bodies = document.querySelectorAll('[data-hook="review-body"]');
+      for (var i = 0; i < bodies.length && reviews.length < maxReviews; i++) {
+        var raw = getTextFromReviewBody(bodies[i]);
+        var text = raw.replace(lireSuiteRegex, "").trim();
+        if (text.length < minChars) continue;
+        var excerpt = text.length <= maxChars ? text : text.slice(0, maxChars - 3) + "...";
+        reviews.push(excerpt);
+      }
     } catch (e) {}
     try {
-      collectFromSelector(".review-text-content span");
-      if (reviews.length >= maxReviews) return reviews.slice(0, maxReviews);
+      if (reviews.length < maxReviews) {
+        var fallback = document.querySelectorAll(".review-text-content span");
+        for (var f = 0; f < fallback.length && reviews.length < maxReviews; f++) {
+          var raw2 = (fallback[f].textContent || fallback[f].innerText || "").trim();
+          var text2 = raw2.replace(lireSuiteRegex, "").trim();
+          if (text2.length >= minChars) {
+            var excerpt2 = text2.length <= maxChars ? text2 : text2.slice(0, maxChars - 3) + "...";
+            reviews.push(excerpt2);
+          }
+        }
+      }
     } catch (e) {}
     try {
-      collectFromSelector('[data-hook="genome-widget"]');
+      if (reviews.length < maxReviews) {
+        var genome = document.querySelectorAll('[data-hook="genome-widget"]');
+        for (var g = 0; g < genome.length && reviews.length < maxReviews; g++) {
+          var raw3 = (genome[g].textContent || genome[g].innerText || "").trim();
+          var text3 = raw3.replace(lireSuiteRegex, "").trim();
+          if (text3.length >= minChars) {
+            var excerpt3 = text3.length <= maxChars ? text3 : text3.slice(0, maxChars - 3) + "...";
+            reviews.push(excerpt3);
+          }
+        }
+      }
     } catch (e) {}
+
     return reviews.slice(0, maxReviews);
+  }
+
+  /**
+   * Vérifie si la page est une page livre Amazon.
+   */
+  function isBookPage() {
+    try {
+      var byline = document.querySelector("#bylineInfo");
+      if (byline) return true;
+      var breadcrumbs = document.querySelector("#wayfinding-breadcrumbs_feature_div");
+      var text = breadcrumbs ? (breadcrumbs.textContent || breadcrumbs.innerText || "").toLowerCase() : "";
+      return text.indexOf("livre") !== -1;
+    } catch (e) {}
+    return false;
+  }
+
+  /**
+   * Extrait les auteurs (pages livres uniquement). Max 3 auteurs.
+   * @returns string[]
+   */
+  function extractAuthorsRaw() {
+    if (!isBookPage()) return [];
+    try {
+      var authors = [];
+      var links = document.querySelectorAll(".author .a-link-normal");
+      for (var i = 0; i < links.length && authors.length < 3; i++) {
+        var t = (links[i].textContent || links[i].innerText || "").trim();
+        if (t.length > 0) authors.push(t);
+      }
+      if (authors.length > 0) return authors.slice(0, 3);
+      var bylineAuthor = document.querySelector("#bylineInfo .author");
+      if (bylineAuthor) {
+        var text = (bylineAuthor.textContent || bylineAuthor.innerText || "").replace(/\(.*?\)/g, "").trim();
+        if (text.length > 0) return [text];
+      }
+    } catch (e) {}
+    return [];
+  }
+
+  /**
+   * Extrait la marque du produit (sélecteurs 1 et 2).
+   * Sélecteur 3 (technicalSpecs) est appliqué en validation.
+   * @returns {string|null}
+   */
+  function extractBrandRaw() {
+    try {
+      var bylineLink = document.querySelector("#bylineInfo .a-link-normal");
+      if (bylineLink) {
+        var t = (bylineLink.textContent || bylineLink.innerText || "").trim();
+        if (t.length > 0) return t;
+      }
+      var byline = document.querySelector("#bylineInfo");
+      if (byline) {
+        var text = (byline.textContent || byline.innerText || "")
+          .replace(/Marque\s*:/gi, "")
+          .replace(/Visitez la boutique/gi, "")
+          .replace(/Visiter la boutique/gi, "")
+          .trim();
+        if (text.length > 0) return text;
+      }
+    } catch (e) {}
+    return null;
   }
 
   /**
@@ -579,6 +771,20 @@
       technicalDescription = [];
     }
 
+    var authors = [];
+    try {
+      authors = extractAuthorsRaw();
+    } catch (e) {
+      authors = [];
+    }
+
+    var brand = null;
+    try {
+      brand = extractBrandRaw();
+    } catch (e) {
+      brand = null;
+    }
+
     var rawUrl = window.location.href || "";
     var asinMatch = rawUrl.match(/\/dp\/([A-Z0-9]{10})/);
     var url = rawUrl;
@@ -597,7 +803,9 @@
       aboutItem: aboutItem,
       technicalDescription: technicalDescription,
       technicalSpecs: technicalSpecs,
-      reviews: reviews
+      reviews: reviews,
+      authors: authors,
+      brand: brand
     };
   }
 
@@ -614,8 +822,22 @@
     else if (title.length > 150) title = title.slice(0, 147) + "...";
 
     var price = cleanText(raw.price || "");
-    if (!price) price = "Prix non disponible";
-    else price = price.replace(/,+/g, ",").replace(/\s+/g, " ").trim();
+    price = price.replace(/[^\d,\s€]/g, "").replace(/,+/g, ",").replace(/\s+/g, " ").trim();
+    if (!price || !/\d/.test(price)) price = "Prix non disponible";
+    else if (price.indexOf("€") === -1) price = price + " €";
+
+    var brand = raw.brand ? cleanText(String(raw.brand)) : null;
+    if (!brand && raw.technicalSpecs && raw.technicalSpecs.length > 0) {
+      for (var b = 0; b < raw.technicalSpecs.length; b++) {
+        if ((raw.technicalSpecs[b].key || "").toLowerCase().indexOf("marque") !== -1) {
+          brand = cleanText(raw.technicalSpecs[b].value || "");
+          break;
+        }
+      }
+    }
+    if (brand) {
+      if (brand.length < 1 || brand.length > 50) brand = null;
+    }
 
     var rating = cleanText(raw.rating || "");
     var reviewCount = cleanText(raw.reviewCount || "");
@@ -670,12 +892,18 @@
       return cleanText(item || "");
     });
 
+    var authors = (raw.authors || []).map(function (a) {
+      return cleanText(a || "");
+    }).filter(function (t) {
+      return t.length > 0;
+    }).slice(0, 3);
+
     var reviews = (raw.reviews || []).filter(function (r) {
-      var t = cleanText(r || "");
-      return t.length >= 10;
+      var t = cleanText(r || "").replace(/\s*(Lire la suite|Read more|Voir plus)\s*$/gi, "").trim();
+      return t.length >= 15;
     }).slice(0, 3).map(function (r) {
-      var t = cleanText(r || "");
-      return t.length > 120 ? t.slice(0, 117) + "..." : t;
+      var t = cleanText(r || "").replace(/\s*(Lire la suite|Read more|Voir plus)\s*$/gi, "").trim();
+      return t.length > 150 ? t.slice(0, 147) + "..." : t;
     });
 
     var technicalDescription = (raw.technicalDescription || []).map(function (p) {
@@ -693,7 +921,7 @@
         p.indexOf("}") === -1 &&
         p.indexOf("function(") === -1;
     }).slice(0, 3).map(function (t) {
-      return t.length > 200 ? t.slice(0, 197) + "..." : t;
+      return t.length > 500 ? t.slice(0, 497) + "..." : t;
     });
 
     return {
@@ -706,7 +934,9 @@
       technicalSpecs: technicalSpecs,
       aboutItem: aboutItem,
       technicalDescription: technicalDescription,
-      reviews: reviews
+      reviews: reviews,
+      authors: authors,
+      brand: brand
     };
   }
 
@@ -762,14 +992,23 @@
     var imageLine = data.image ? "![Image produit](" + data.image + ")" : "";
     var imageBlock = data.image ? [imageLine, ""] : [];
 
+    var infoLines = [
+      "- **Prix** : " + (data.price || "—")
+    ];
+    if (data.brand) {
+      infoLines.push("- **Marque** : " + data.brand);
+    }
+    infoLines.push("- **Note** : " + (data.rating || "—") + " (" + (data.reviewCount || "—") + ")");
+    if (data.authors && data.authors.length > 0) {
+      infoLines.push("- **Auteur(s)** : " + data.authors.join(", "));
+    }
+
     return [
       "---",
       "# " + (data.title || "Product"),
       "",
-      "## 📊 Informations clés",
-      "- **Prix** : " + (data.price || "—"),
-      "- **Note** : " + (data.rating || "—") + " (" + (data.reviewCount || "—") + ")"
-    ].concat(aboutLines).concat(technicalLines).concat([
+      "## 📊 Informations clés"
+    ].concat(infoLines).concat(aboutLines).concat(technicalLines).concat([
       "",
       "## 🔧 Descriptif technique",
       technicalSpecsBlock,
