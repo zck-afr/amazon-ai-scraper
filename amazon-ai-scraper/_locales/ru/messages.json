@@ -1,0 +1,20 @@
+{
+  "extensionName": {"message": "BriefAI"},
+  "extensionDescription": {"message": "Извлечение товаров Amazon для анализа ИИ в 1 клик"},
+  "extractButton": {"message": "Извлечь данные товара"},
+  "extractingButton": {"message": "Извлечение..."},
+  "copyButton": {"message": "Копировать JSON"},
+  "copiedButton": {"message": "Скопировано!"},
+  "reextractButton": {"message": "Извлечь снова"},
+  "tryAgainButton": {"message": "Повторить"},
+  "idleMessage": {"message": "Откройте страницу товара на Amazon и нажмите «Извлечь»"},
+  "errorNotAmazon": {"message": "Это расширение работает только на Amazon (amazon.fr, amazon.com и т.д.)"},
+  "errorNotProduct": {"message": "Перейдите на страницу товара Amazon (URL с /dp/)"},
+  "errorGeneric": {"message": "Непредвиденная ошибка:"},
+  "errorTimeout": {"message": "Таймаут: страница слишком долго не отвечает"},
+  "errorExtractionFailed": {"message": "Ошибка извлечения."},
+  "errorCopyFailed": {"message": "Не удалось скопировать в буфер обмена."},
+  "downloadJsonButton": {"message": "Скачать JSON"},
+  "downloadedJsonButton": {"message": "Скачано!"},
+  "errorDefault": {"message": "Произошла ошибка."}
+}

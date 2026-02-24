@@ -1,0 +1,20 @@
+{
+  "extensionName": {"message": "BriefAI"},
+  "extensionDescription": {"message": "Wyodrębnij produkty Amazon do analizy AI jednym kliknięciem"},
+  "extractButton": {"message": "Wyodrębnij dane produktu"},
+  "extractingButton": {"message": "Wyodrębnianie..."},
+  "copyButton": {"message": "Kopiuj JSON"},
+  "copiedButton": {"message": "Skopiowano!"},
+  "reextractButton": {"message": "Wyodrębnij ponownie"},
+  "tryAgainButton": {"message": "Spróbuj ponownie"},
+  "idleMessage": {"message": "Otwórz stronę produktu Amazon i kliknij Wyodrębnij"},
+  "errorNotAmazon": {"message": "To rozszerzenie działa tylko na Amazon (amazon.fr, amazon.com, itp.)"},
+  "errorNotProduct": {"message": "Przejdź do strony produktu Amazon (adres URL z /dp/)"},
+  "errorGeneric": {"message": "Nieoczekiwany błąd:"},
+  "errorTimeout": {"message": "Przekroczono limit czasu: strona zbyt długo nie odpowiada"},
+  "errorExtractionFailed": {"message": "Wyodrębnianie nie powiodło się."},
+  "errorCopyFailed": {"message": "Nie można skopiować do schowka."},
+  "downloadJsonButton": {"message": "Pobierz JSON"},
+  "downloadedJsonButton": {"message": "Pobrano!"},
+  "errorDefault": {"message": "Wystąpił błąd."}
+}

@@ -1,0 +1,20 @@
+{
+  "extensionName": {"message": "BriefAI"},
+  "extensionDescription": {"message": "Amazon ürünlerini 1 tıkla yapay zeka analizi için çıkarın"},
+  "extractButton": {"message": "Ürün verilerini çıkar"},
+  "extractingButton": {"message": "Çıkarılıyor..."},
+  "copyButton": {"message": "JSON'u kopyala"},
+  "copiedButton": {"message": "Kopyalandı!"},
+  "reextractButton": {"message": "Yeniden çıkar"},
+  "tryAgainButton": {"message": "Tekrar dene"},
+  "idleMessage": {"message": "Bir Amazon ürün sayfası açın ve Çıkar'a tıklayın"},
+  "errorNotAmazon": {"message": "Bu uzantı yalnızca Amazon'da (amazon.fr, amazon.com vb.) çalışır"},
+  "errorNotProduct": {"message": "Bir Amazon ürün sayfasına gidin (/dp/ içeren URL)"},
+  "errorGeneric": {"message": "Beklenmeyen hata:"},
+  "errorTimeout": {"message": "Zaman aşımı: sayfa yanıt vermekte çok gecikti"},
+  "errorExtractionFailed": {"message": "Çıkarma başarısız."},
+  "errorCopyFailed": {"message": "Panoya kopyalanamadı."},
+  "downloadJsonButton": {"message": "JSON indir"},
+  "downloadedJsonButton": {"message": "İndirildi!"},
+  "errorDefault": {"message": "Bir hata oluştu."}
+}

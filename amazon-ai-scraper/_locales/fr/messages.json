@@ -1,0 +1,56 @@
+{
+  "extensionName": {
+    "message": "BriefAI"
+  },
+  "extensionDescription": {
+    "message": "Extrait les produits Amazon pour analyse IA en 1 clic"
+  },
+  "extractButton": {
+    "message": "Extraire le produit"
+  },
+  "extractingButton": {
+    "message": "Extraction..."
+  },
+  "copyButton": {
+    "message": "Copier JSON"
+  },
+  "copiedButton": {
+    "message": "Copié !"
+  },
+  "reextractButton": {
+    "message": "Ré-extraire"
+  },
+  "tryAgainButton": {
+    "message": "Réessayer"
+  },
+  "idleMessage": {
+    "message": "Ouvrez une page produit Amazon puis cliquez sur Extraire"
+  },
+  "errorNotAmazon": {
+    "message": "Cette extension fonctionne uniquement sur Amazon (amazon.fr, amazon.com, etc.)"
+  },
+  "errorNotProduct": {
+    "message": "Naviguez sur une page produit Amazon (URL avec /dp/)"
+  },
+  "errorGeneric": {
+    "message": "Erreur inattendue :"
+  },
+  "errorTimeout": {
+    "message": "Timeout : la page met trop de temps à répondre"
+  },
+  "errorExtractionFailed": {
+    "message": "Extraction échouée."
+  },
+  "errorCopyFailed": {
+    "message": "Impossible de copier dans le presse-papier."
+  },
+  "downloadJsonButton": {
+    "message": "Télécharger JSON"
+  },
+  "downloadedJsonButton": {
+    "message": "Téléchargé !"
+  },
+  "errorDefault": {
+    "message": "Une erreur s'est produite."
+  }
+}

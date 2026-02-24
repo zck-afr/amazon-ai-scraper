@@ -1,0 +1,20 @@
+{
+  "extensionName": {"message": "BriefAI"},
+  "extensionDescription": {"message": "استخراج منتجات أمازون لتحليل الذكاء الاصطناعي بنقرة واحدة"},
+  "extractButton": {"message": "استخراج بيانات المنتج"},
+  "extractingButton": {"message": "جاري الاستخراج..."},
+  "copyButton": {"message": "نسخ JSON"},
+  "copiedButton": {"message": "تم النسخ!"},
+  "reextractButton": {"message": "إعادة الاستخراج"},
+  "tryAgainButton": {"message": "إعادة المحاولة"},
+  "idleMessage": {"message": "افتح صفحة منتج على أمازون ثم انقر على استخراج"},
+  "errorNotAmazon": {"message": "هذا الامتداد يعمل فقط على أمازون (amazon.fr، amazon.com، إلخ)"},
+  "errorNotProduct": {"message": "انتقل إلى صفحة منتج أمازون (رابط يحتوي على /dp/)"},
+  "errorGeneric": {"message": "خطأ غير متوقع:"},
+  "errorTimeout": {"message": "انتهت المهلة: الصفحة تستغرق وقتاً طويلاً للاستجابة"},
+  "errorExtractionFailed": {"message": "فشل الاستخراج."},
+  "errorCopyFailed": {"message": "تعذر النسخ إلى الحافظة."},
+  "downloadJsonButton": {"message": "تحميل JSON"},
+  "downloadedJsonButton": {"message": "تم التحميل!"},
+  "errorDefault": {"message": "حدث خطأ."}
+}

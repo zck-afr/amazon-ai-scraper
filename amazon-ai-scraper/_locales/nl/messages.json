@@ -1,0 +1,20 @@
+{
+  "extensionName": {"message": "BriefAI"},
+  "extensionDescription": {"message": "Haal Amazon-producten in 1 klik op voor AI-analyse"},
+  "extractButton": {"message": "Productgegevens extraheren"},
+  "extractingButton": {"message": "Bezig met extraheren..."},
+  "copyButton": {"message": "JSON kopiëren"},
+  "copiedButton": {"message": "Gekopieerd!"},
+  "reextractButton": {"message": "Opnieuw extraheren"},
+  "tryAgainButton": {"message": "Opnieuw proberen"},
+  "idleMessage": {"message": "Open een Amazon-productpagina en klik op Extraheren"},
+  "errorNotAmazon": {"message": "Deze extensie werkt alleen op Amazon (amazon.fr, amazon.com, etc.)"},
+  "errorNotProduct": {"message": "Ga naar een Amazon-productpagina (URL met /dp/)"},
+  "errorGeneric": {"message": "Onverwachte fout:"},
+  "errorTimeout": {"message": "Time-out: de pagina reageerde te traag"},
+  "errorExtractionFailed": {"message": "Extractie mislukt."},
+  "errorCopyFailed": {"message": "Kon niet naar het klembord kopiëren."},
+  "downloadJsonButton": {"message": "JSON downloaden"},
+  "downloadedJsonButton": {"message": "Gedownload!"},
+  "errorDefault": {"message": "Er is een fout opgetreden."}
+}

@@ -1,17 +1,17 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="" id="popup-lang">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Amazon AI Scraper</title>
+  <title data-i18n="extensionName">BriefAI</title>
   <link rel="stylesheet" href="popup.css">
 </head>
 <body>
   <div class="popup">
     <!-- Header : logo, titre, version, indicateur d'état -->
     <header class="popup-header">
-      <span class="logo" aria-hidden="true">🤖</span>
-      <h1 class="header-title">Amazon AI Scraper</h1>
+      <img src="icons/icon16.png" alt="" class="logo" width="16" height="16" aria-hidden="true">
+      <h1 class="header-title" data-i18n="extensionName">BriefAI</h1>
       <span class="version">v1.0</span>
       <span class="status-indicator" id="statusIndicator" aria-hidden="true"></span>
     </header>
@@ -19,27 +19,27 @@
     <main class="popup-main">
       <!-- État 1 : IDLE -->
       <section id="block-idle" class="state-block">
-        <p class="idle-text">Ouvrez une page produit Amazon puis cliquez sur Extract</p>
-        <button type="button" id="extractBtn" class="btn btn-primary">🔍 Extract Product Data</button>
+        <p class="idle-text" data-i18n="idleMessage"></p>
+        <button type="button" id="extractBtn" class="btn btn-primary" data-i18n="extractButton" data-i18n-prefix="🔍 "></button>
       </section>
 
       <!-- État 2 : LOADING -->
       <section id="block-loading" class="state-block hidden">
         <div class="spinner-wrapper">
           <div class="spinner" aria-hidden="true"></div>
-          <span class="spinner-text">Extracting...</span>
+          <span class="spinner-text" data-i18n="extractingButton"></span>
         </div>
-        <button type="button" class="btn btn-primary btn-disabled" disabled>⏳ Extracting...</button>
+        <button type="button" class="btn btn-primary btn-disabled" disabled data-i18n="extractingButton" data-i18n-prefix="⏳ "></button>
       </section>
 
       <!-- État 3 : SUCCESS -->
       <section id="block-success" class="state-block hidden">
-        <div class="preview-wrapper">
-          <pre id="preview" class="preview" aria-label="Aperçu Markdown"></pre>
+        <div id="previewContainer" class="preview-wrapper">
+          <pre id="jsonPreview" aria-label="Aperçu JSON"></pre>
         </div>
         <div class="btn-row">
-          <button type="button" id="copyBtn" class="btn btn-primary">📋 Copy Markdown</button>
-          <button type="button" id="reExtractBtn" class="btn btn-outline" title="Ré-extraire">🔄</button>
+          <button type="button" id="copyBtn" class="btn btn-primary" data-i18n="copyButton" data-i18n-prefix="📋 "></button>
+          <button type="button" id="reExtractBtn" class="btn btn-outline" data-i18n-title="reextractButton" title="">🔄</button>
         </div>
       </section>
 
@@ -49,7 +49,7 @@
           <span class="error-icon" aria-hidden="true">❌</span>
           <p id="errorMessage" class="error-text"></p>
         </div>
-        <button type="button" id="tryAgainBtn" class="btn btn-primary">🔍 Try Again</button>
+        <button type="button" id="tryAgainBtn" class="btn btn-primary" data-i18n="tryAgainButton" data-i18n-prefix="🔍 "></button>
       </section>
     </main>
   </div>

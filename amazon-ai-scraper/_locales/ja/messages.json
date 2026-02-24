@@ -1,0 +1,20 @@
+{
+  "extensionName": {"message": "BriefAI"},
+  "extensionDescription": {"message": "1クリックでAmazon商品をAI分析用に抽出"},
+  "extractButton": {"message": "商品データを抽出"},
+  "extractingButton": {"message": "抽出中..."},
+  "copyButton": {"message": "JSONをコピー"},
+  "copiedButton": {"message": "コピーしました！"},
+  "reextractButton": {"message": "再抽出"},
+  "tryAgainButton": {"message": "再試行"},
+  "idleMessage": {"message": "Amazonの商品ページを開いて「抽出」をクリックしてください"},
+  "errorNotAmazon": {"message": "この拡張機能はAmazon（amazon.fr、amazon.comなど）でのみ動作します"},
+  "errorNotProduct": {"message": "Amazonの商品ページ（/dp/を含むURL）に移動してください"},
+  "errorGeneric": {"message": "予期しないエラー："},
+  "errorTimeout": {"message": "タイムアウト：ページの応答が遅すぎます"},
+  "errorExtractionFailed": {"message": "抽出に失敗しました。"},
+  "errorCopyFailed": {"message": "クリップボードにコピーできませんでした。"},
+  "downloadJsonButton": {"message": "JSONをダウンロード"},
+  "downloadedJsonButton": {"message": "ダウンロードしました！"},
+  "errorDefault": {"message": "エラーが発生しました。"}
+}

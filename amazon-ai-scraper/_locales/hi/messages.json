@@ -1,0 +1,20 @@
+{
+  "extensionName": {"message": "BriefAI"},
+  "extensionDescription": {"message": "1 क्लिक में Amazon उत्पादों को AI विश्लेषण के लिए निकालें"},
+  "extractButton": {"message": "उत्पाद डेटा निकालें"},
+  "extractingButton": {"message": "निकाल रहा है..."},
+  "copyButton": {"message": "JSON कॉपी करें"},
+  "copiedButton": {"message": "कॉपी हो गया!"},
+  "reextractButton": {"message": "फिर से निकालें"},
+  "tryAgainButton": {"message": "पुनः प्रयास करें"},
+  "idleMessage": {"message": "एक Amazon उत्पाद पेज खोलें और निकालें पर क्लिक करें"},
+  "errorNotAmazon": {"message": "यह एक्सटेंशन केवल Amazon (amazon.fr, amazon.com आदि) पर काम करता है"},
+  "errorNotProduct": {"message": "Amazon उत्पाद पेज पर जाएं (URL में /dp/ होना चाहिए)"},
+  "errorGeneric": {"message": "अप्रत्याशित त्रुटि:"},
+  "errorTimeout": {"message": "समय समाप्त: पेज ने जवाब देने में बहुत समय लिया"},
+  "errorExtractionFailed": {"message": "निष्कर्षण विफल."},
+  "errorCopyFailed": {"message": "क्लिपबोर्ड में कॉपी नहीं हो सका."},
+  "downloadJsonButton": {"message": "JSON डाउनलोड करें"},
+  "downloadedJsonButton": {"message": "डाउनलोड हो गया!"},
+  "errorDefault": {"message": "एक त्रुटि हुई."}
+}

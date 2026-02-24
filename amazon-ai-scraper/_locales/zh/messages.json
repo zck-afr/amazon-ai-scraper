@@ -1,0 +1,20 @@
+{
+  "extensionName": {"message": "BriefAI"},
+  "extensionDescription": {"message": "一键提取亚马逊商品数据用于AI分析"},
+  "extractButton": {"message": "提取商品数据"},
+  "extractingButton": {"message": "正在提取..."},
+  "copyButton": {"message": "复制 JSON"},
+  "copiedButton": {"message": "已复制！"},
+  "reextractButton": {"message": "重新提取"},
+  "tryAgainButton": {"message": "重试"},
+  "idleMessage": {"message": "打开亚马逊商品页面后点击「提取」"},
+  "errorNotAmazon": {"message": "此扩展仅适用于亚马逊（amazon.fr、amazon.com 等）"},
+  "errorNotProduct": {"message": "请打开亚马逊商品页面（URL 需包含 /dp/）"},
+  "errorGeneric": {"message": "意外错误："},
+  "errorTimeout": {"message": "超时：页面响应过慢"},
+  "errorExtractionFailed": {"message": "提取失败。"},
+  "errorCopyFailed": {"message": "无法复制到剪贴板。"},
+  "downloadJsonButton": {"message": "下载 JSON"},
+  "downloadedJsonButton": {"message": "已下载！"},
+  "errorDefault": {"message": "发生错误。"}
+}

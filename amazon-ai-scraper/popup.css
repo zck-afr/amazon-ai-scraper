@@ -1,5 +1,5 @@
 /* ============================================
-   Amazon AI Scraper - Popup UI
+   BriefAI - Popup UI
    Design system : couleurs, typo, composants
    ============================================ */
 
@@ -38,8 +38,10 @@ body {
 }
 
 .logo {
-  font-size: 20px;
-  line-height: 1;
+  display: block;
+  width: 16px;
+  height: 16px;
+  object-fit: contain;
 }
 
 .header-title {
@@ -163,44 +165,44 @@ body {
   flex: 1;
 }
 
-/* ---- Zone preview Markdown ---- */
+/* ---- Zone preview JSON ---- */
 .preview-wrapper {
-  max-height: 250px;
-  overflow-y: auto;
-  background: #F8FAFC;
-  border: 1px solid #E2E8F0;
-  border-radius: 8px;
-  padding: 12px;
   margin-bottom: 12px;
 }
 
-/* Scrollbar stylée (webkit) */
-.preview-wrapper::-webkit-scrollbar {
-  width: 6px;
-}
-
-.preview-wrapper::-webkit-scrollbar-track {
-  background: #E2E8F0;
-  border-radius: 3px;
-}
-
-.preview-wrapper::-webkit-scrollbar-thumb {
-  background: #94A3B8;
-  border-radius: 3px;
-}
-
-.preview-wrapper::-webkit-scrollbar-thumb:hover {
-  background: #64748B;
-}
-
-.preview {
+#jsonPreview {
+  font-family: "Courier New", monospace;
+  font-size: 11px;
+  line-height: 1.4;
+  color: #1e293b;
+  background: #f8fafc;
+  padding: 12px;
+  border-radius: 6px;
+  overflow-x: auto;
+  white-space: pre;
+  max-height: 250px;
+  overflow-y: auto;
   margin: 0;
-  font-family: monospace;
-  font-size: 12px;
-  line-height: 1.45;
-  color: #1E293B;
-  white-space: pre-wrap;
-  word-break: break-word;
+  border: 1px solid #e2e8f0;
+}
+
+#jsonPreview::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+#jsonPreview::-webkit-scrollbar-track {
+  background: #f1f5f9;
+  border-radius: 3px;
+}
+
+#jsonPreview::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 3px;
+}
+
+#jsonPreview::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
 }
 
 /* ---- Boîte erreur ---- */

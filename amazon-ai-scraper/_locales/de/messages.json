@@ -1,0 +1,20 @@
+{
+  "extensionName": {"message": "BriefAI"},
+  "extensionDescription": {"message": "Amazon-Produkte für KI-Analyse mit 1 Klick extrahieren"},
+  "extractButton": {"message": "Produktdaten extrahieren"},
+  "extractingButton": {"message": "Wird extrahiert..."},
+  "copyButton": {"message": "JSON kopieren"},
+  "copiedButton": {"message": "Kopiert!"},
+  "reextractButton": {"message": "Erneut extrahieren"},
+  "tryAgainButton": {"message": "Erneut versuchen"},
+  "idleMessage": {"message": "Öffnen Sie eine Amazon-Produktseite und klicken Sie auf Extraieren"},
+  "errorNotAmazon": {"message": "Diese Erweiterung funktioniert nur auf Amazon (amazon.fr, amazon.com, etc.)"},
+  "errorNotProduct": {"message": "Navigieren Sie zu einer Amazon-Produktseite (URL mit /dp/)"},
+  "errorGeneric": {"message": "Unerwarteter Fehler:"},
+  "errorTimeout": {"message": "Zeitüberschreitung: Die Seite antwortet zu langsam"},
+  "errorExtractionFailed": {"message": "Extraktion fehlgeschlagen."},
+  "errorCopyFailed": {"message": "In die Zwischenablage kopieren fehlgeschlagen."},
+  "downloadJsonButton": {"message": "JSON herunterladen"},
+  "downloadedJsonButton": {"message": "Heruntergeladen!"},
+  "errorDefault": {"message": "Ein Fehler ist aufgetreten."}
+}

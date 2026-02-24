@@ -4,16 +4,21 @@
   /* ========== PARTIE 1 & 6 : Validation URL et messages d'erreur ========== */
 
   /**
-   * Vérifie que la page est une page produit Amazon.fr valide.
+   * Vérifie que la page est une page produit Amazon valide (amazon.fr, amazon.co.uk, etc.).
    * @returns {{ ok: boolean, error?: string }}
    */
   function validateUrl() {
     var href = typeof window !== "undefined" && window.location && window.location.href ? window.location.href : "";
-    if (!href.includes("amazon.fr")) {
-      return { ok: false, error: "⚠️ Cette extension fonctionne uniquement sur amazon.fr" };
+    var amazonDomains = ["amazon.fr", "amazon.co.uk", "amazon.com", "amazon.de", "amazon.es", "amazon.it", "amazon.ca"];
+    var isAmazon = amazonDomains.some(function (d) {
+      return href.includes(d);
+    });
+    if (!isAmazon) {
+      return { ok: false, error: "⚠️ " + chrome.i18n.getMessage("errorNotAmazon") };
     }
-    if (!href.includes("/dp/")) {
-      return { ok: false, error: "⚠️ Naviguez sur une page produit Amazon (URL avec /dp/)" };
+    var isProductPage = href.indexOf("/dp/") !== -1 || href.indexOf("/gp/product/") !== -1;
+    if (!isProductPage) {
+      return { ok: false, error: "⚠️ " + chrome.i18n.getMessage("errorNotProduct") };
     }
     return { ok: true };
   }
@@ -822,7 +827,7 @@
     else if (title.length > 150) title = title.slice(0, 147) + "...";
 
     var price = cleanText(raw.price || "");
-    price = price.replace(/[^\d,\s€]/g, "").replace(/,+/g, ",").replace(/\s+/g, " ").trim();
+    price = price.replace(/[^\d.,\s€]/g, "").replace(/,+/g, ",").replace(/\s+/g, " ").trim();
     if (!price || !/\d/.test(price)) price = "Prix non disponible";
     else if (price.indexOf("€") === -1) price = price + " €";
 
@@ -940,88 +945,142 @@
     };
   }
 
-  /* ========== PARTIE 4 : Génération Markdown robuste ========== */
+  /* ========== PARTIE 4 : Génération JSON structuré (copie clipboard / LLM) ========== */
 
   /**
-   * Génère le Markdown à partir des données validées.
-   * Masque les sections si données absentes.
+   * Détecte la devise depuis la chaîne de prix.
+   * @param {string} priceString - ex. "209,99 €"
+   * @returns {string} "EUR" | "USD" | "GBP"
    */
-  function generateMarkdown(data) {
-    var dateStr = new Date().toISOString().slice(0, 10);
+  function detectCurrency(priceString) {
+    if (!priceString || typeof priceString !== "string") return "EUR";
+    if (priceString.indexOf("€") !== -1) return "EUR";
+    if (priceString.indexOf("$") !== -1) return "USD";
+    if (priceString.indexOf("£") !== -1) return "GBP";
+    return "EUR";
+  }
 
-    var technicalSpecsBlock = "- Non disponible";
-    if (data.technicalSpecs && data.technicalSpecs.length > 0) {
-      var escapePipe = function (str) { return (str || "").replace(/\|/g, ", "); };
-      technicalSpecsBlock = [
-        "| Caractéristique | Valeur |",
-        "|-----------------|--------|"
-      ].concat(data.technicalSpecs.map(function (s) {
-        return "| " + escapePipe(s.key) + " | " + escapePipe(s.value) + " |";
-      })).join("\n");
+  /**
+   * Parse le prix : "209,99 €" → { amount: 209.99, currency: "EUR", display: "209,99 €" }
+   * @param {string} priceString
+   * @returns {{ amount: number|null, currency: string, display: string }}
+   */
+  function parsePrice(priceString) {
+    var display = (priceString && typeof priceString === "string") ? priceString.trim() : "";
+    var amount = null;
+    if (display) {
+      var s = display.replace(/[^\d,\.]/g, "").replace(",", ".");
+      var parts = s.split(".");
+      if (parts.length > 2) {
+        parts = [parts.slice(0, -1).join(""), parts[parts.length - 1]];
+      }
+      s = parts.join(".");
+      var n = parseFloat(s);
+      amount = isNaN(n) ? null : n;
+    }
+    return {
+      amount: amount,
+      currency: detectCurrency(priceString),
+      display: (display && display.length > 0) ? display : null
+    };
+  }
+
+  /**
+   * Extrait l'ASIN depuis l'URL (data.url).
+   */
+  function getAsinFromData(data) {
+    var url = data.url || "";
+    var m = url.match(/\/dp\/([A-Z0-9]{10})/);
+    return m && m[1] ? m[1] : "";
+  }
+
+  /**
+   * Détecte le domaine Amazon depuis l'URL de la page.
+   */
+  function detectAmazonDomain() {
+    var href = typeof window !== "undefined" && window.location && window.location.href ? window.location.href : "";
+    var match = href.match(/amazon\.([a-z.]+)(?:\/|$)/i);
+    return match ? "amazon." + match[1].toLowerCase() : "amazon.fr";
+  }
+
+  /**
+   * Parse la note (ex. "4,5/5" → 4.5).
+   */
+  function parseRatingScore(ratingStr) {
+    if (!ratingStr || typeof ratingStr !== "string") return null;
+    var m = ratingStr.match(/^([\d,\.]+)\s*\/\s*5/);
+    if (!m || !m[1]) return null;
+    var s = m[1].trim().replace(",", ".");
+    var n = parseFloat(s);
+    return isNaN(n) ? null : n;
+  }
+
+  /**
+   * Parse le nombre d'avis (ex. "1 234 avis" → 125).
+   */
+  function parseReviewsCount(reviewCountStr) {
+    if (!reviewCountStr || typeof reviewCountStr !== "string") return 0;
+    var m = reviewCountStr.match(/([\d\s]+)/);
+    if (!m || !m[1]) return 0;
+    var n = parseInt(m[1].replace(/\s+/g, ""), 10);
+    return isNaN(n) ? 0 : n;
+  }
+
+  /**
+   * Génère l'objet JSON produit pour copie clipboard / ChatGPT.
+   * Champs absents = null (pas de string vide, pas de [] vides sauf about/description).
+   * @param {object} data - Données validées (validateAndCleanData)
+   * @returns {{ product: object }}
+   */
+  function generateJSON(data) {
+    var source = detectAmazonDomain();
+    var asin = getAsinFromData(data);
+    var price = parsePrice(data.price || "");
+
+    var specifications = {};
+    if (data.technicalSpecs && Array.isArray(data.technicalSpecs)) {
+      for (var i = 0; i < data.technicalSpecs.length; i++) {
+        var k = (data.technicalSpecs[i].key || "").trim();
+        var v = (data.technicalSpecs[i].value || "").trim();
+        if (k) specifications[k] = v;
+      }
     }
 
-    var reviewsBlock = "- Aucun avis disponible";
-    if (data.reviews && data.reviews.length > 0) {
-      reviewsBlock = data.reviews.map(function (r, i) {
-        return (i + 1) + ". " + (r || "");
-      }).join("\n");
-    }
+    var about = (data.aboutItem && data.aboutItem.length > 0) ? data.aboutItem.slice() : [];
+    var description = (data.technicalDescription && data.technicalDescription.length > 0) ? data.technicalDescription.slice() : [];
+    var reviews_sample = (data.reviews && data.reviews.length > 0) ? data.reviews.slice() : null;
+    var authors = (data.authors && data.authors.length > 0) ? data.authors.slice() : null;
 
-    var aboutLines = [];
-    if (data.aboutItem && data.aboutItem.length > 0) {
-      aboutLines = [
-        "",
-        "## 📦 À propos de cet article",
-        data.aboutItem.map(function (point) {
-          return "- " + (point || "");
-        }).join("\n")
-      ];
-    }
+    var mainImage = (data.image && data.image.indexOf("http") === 0) ? data.image : null;
 
-    var technicalLines = [];
-    if (data.technicalDescription && data.technicalDescription.length > 0) {
-      technicalLines = [
-        "",
-        "## 📝 Description technique",
-        data.technicalDescription.map(function (p, i) {
-          return (i + 1) + ". " + (p || "");
-        }).join("\n")
-      ];
-    }
+    var product = {
+      source: source,
+      asin: asin || null,
+      title: data.title || null,
+      brand: data.brand || null,
+      price: {
+        amount: price.amount,
+        currency: price.currency,
+        display: price.display
+      },
+      rating: {
+        score: parseRatingScore(data.rating),
+        reviews_count: parseReviewsCount(data.reviewCount)
+      },
+      authors: authors,
+      about: about,
+      description: description,
+      specifications: Object.keys(specifications).length > 0 ? specifications : null,
+      reviews_sample: reviews_sample,
+      images: {
+        main: mainImage,
+        thumbnails: []
+      },
+      url: data.url || null,
+      extracted_at: new Date().toISOString()
+    };
 
-    var imageLine = data.image ? "![Image produit](" + data.image + ")" : "";
-    var imageBlock = data.image ? [imageLine, ""] : [];
-
-    var infoLines = [
-      "- **Prix** : " + (data.price || "—")
-    ];
-    if (data.brand) {
-      infoLines.push("- **Marque** : " + data.brand);
-    }
-    infoLines.push("- **Note** : " + (data.rating || "—") + " (" + (data.reviewCount || "—") + ")");
-    if (data.authors && data.authors.length > 0) {
-      infoLines.push("- **Auteur(s)** : " + data.authors.join(", "));
-    }
-
-    return [
-      "---",
-      "# " + (data.title || "Product"),
-      "",
-      "## 📊 Informations clés"
-    ].concat(infoLines).concat(aboutLines).concat(technicalLines).concat([
-      "",
-      "## 🔧 Descriptif technique",
-      technicalSpecsBlock,
-      "",
-      "## 💬 Aperçu des avis clients",
-      reviewsBlock,
-      ""
-    ].concat(imageBlock)).concat([
-      "---",
-      "🔗 **Source** : " + (data.url || ""),
-      "📅 **Extrait le** : " + dateStr,
-      "---"
-    ]).join("\n");
+    return { product: product };
   }
 
   /* ========== PARTIE 5 : Listener avec gestion d'erreurs globale ========== */
@@ -1036,12 +1095,12 @@
       try {
         var raw = extractAmazonDataRaw();
         var data = validateAndCleanData(raw);
-        var markdown = generateMarkdown(data);
-        sendResponse({ success: true, markdown: markdown });
+        var json = generateJSON(data);
+        sendResponse({ success: true, json: json });
       } catch (error) {
         sendResponse({
           success: false,
-          error: "❌ Erreur inattendue : " + (error && error.message ? error.message : String(error))
+          error: "❌ " + chrome.i18n.getMessage("errorGeneric") + " " + (error && error.message ? error.message : String(error))
         });
       }
       return true;
